@@ -16,12 +16,17 @@ import requests
 from pymongo import MongoClient
 # from mlflow.tracking import MlflowClient
 
+
+
+
 from pydantic import BaseModel
 from datetime import datetime, time, timedelta , date
 from typing import List, Union
 
 import logging	
 boto3.set_stream_logger('boto3.resources', logging.NOTSET)
+
+
 
 
 EVIDENTLY_SERVICE_ADDRESS = os.getenv("EVIDENTLY_SERVICE", "http://127.0.0.1:5000")
@@ -34,9 +39,8 @@ class exoRow(BaseModel):
     GXP: float
     MPMIS: float
 
-
 # Create FastAPI instance
-app = FastAPI(title="CBN Developer Guide")
+app = FastAPI(title="CBN Developer Guide",)
 mongo_client = MongoClient(MONGODB_ADDRESS)
 db = mongo_client.get_database("prediction_service")
 collection = db.get_collection("data")
@@ -54,14 +58,16 @@ def send_to_evidently_service(record):
         requests.post(f"{EVIDENTLY_SERVICE_ADDRESS}/iterate/gdp", files={"file": open(record,'rb')})
     else:
         requests.post(f"{EVIDENTLY_SERVICE_ADDRESS}/iterate/gdp", files={"file": record})
+    
 
 
 
 
 
-os.environ["AWS_ACCESS_KEY_ID"] = "minio"	
-os.environ["AWS_SECRET_ACCESS_KEY"] = "minio123"	
+os.environ["AWS_ACCESS_KEY_ID"] = "minio"
+os.environ["AWS_SECRET_ACCESS_KEY"] = "minio123"
 os.environ["MLFLOW_S3_ENDPOINT_URL"] = f"http://host.docker.internal:9000"
+
 
 
 
@@ -69,21 +75,23 @@ os.environ["MLFLOW_S3_ENDPOINT_URL"] = f"http://host.docker.internal:9000"
 remote_server_uri = "http://mlflow_server:5000"# set to your server URI
 
 mlflow.set_tracking_uri(remote_server_uri)
-run_ID = '8b18bb96d86b4417bea0f8e35cbd4847'
+run_ID = '0a22ff73acdb464f9158623a9494d3f7'
 model_name = "newGDPmodel"
-model_version = 3
+model_version = 2
+
 
 model = mlflow.statsmodels.load_model(model_uri=f"models:/{model_name}/{model_version}")
 
+
 # endog = pd.read_csv("endog.csv")
 # endog = endog.set_index("date")
-
 
 df = mlflow.artifacts.download_artifacts(artifact_uri=f"runs:/{run_ID}/favardata1105.xlsx" ,dst_path=os.getcwd())
 endog = mlflow.artifacts.download_artifacts(artifact_uri=f"runs:/{run_ID}/endog.csv" ,dst_path=os.getcwd())
 
 endog = pd.read_csv(endog)
 endog = endog.set_index("date")
+
 
 df = pd.read_excel(df)
 df = df.set_index('date')
@@ -110,17 +118,14 @@ async def predict(request: Request, file: bytes = File(...) ):
     pred = preds[['dlRY']]
 
     test_df['dlRY'] = preds['dlRY']
-    print(test_df)
-    values = test_df.to_dict('records')
-    
-    print(values)
 
+    values = test_df.to_dict('records')
     json_values = test_df.to_json()
     print(json_values)
 
 
 
-    
+
 
     save_to_db(values)
     # send_to_evidently_service(json_values)
@@ -129,15 +134,15 @@ async def predict(request: Request, file: bytes = File(...) ):
     return JSONResponse(content=json_compatible_item_data)
 
 
-
 @app.post("/predict/json/")
 async def predict_json(request: Request , items: List[exoRow]):
-    
+    # if len(items) is not 4 :
+    #     return {"error":"values more be four"}
     items_dict = jsonable_encoder(items)
-    
-    test_df = pd.DataFrame.from_dict(items_dict).set_index('date')
-    
-    
+    # return items_dict
+    # test_df = pd.read_json(items_json)
+    test_df = pd.DataFrame.from_dict(items_dict ).set_index('date')
+    print(test_df)
     
     ########### additional Testing Done#################
     exog = dflog[['COP', 'MPMIS', 'GXP']]
@@ -146,9 +151,7 @@ async def predict_json(request: Request , items: List[exoRow]):
     
     #test_df = pd.DataFrame(test_df,index= df[-4:].index)
     test_df = np.log(test_df)
-    # print(test_df)
-    
-
+    print(test_df)
     frames = [exog, test_df]
     exogOI = pd.concat(frames)
     
@@ -156,34 +159,25 @@ async def predict_json(request: Request , items: List[exoRow]):
     print(shiftofgxp)
     exogOI = exogOI[['COP', 'MPMIS']]
     exogOI = pd.merge(exogOI, shiftofgxp, on=['date'])
-    # print(exogOI)
+    print(exogOI)
     exogModel = exogOI.loc['2017-03-31':'2021-12-31', ['COP', 'GXP', 'MPMIS']]
     exogForecast = exogOI.loc['2022-03-31':'2022-12-31', ['COP', 'GXP', 'MPMIS']]
-    # print(exogForecast)
+    print(exogForecast)
     # frames = [exog, input_exog]
     preds = model.forecast(endog.values[-1:], steps=4, exog_future=exogForecast)
     preds = pd.DataFrame(data = preds, columns = ['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'dlRY'], index=exogForecast.index)
-    # pred = preds[['dlRY']]
-    pred_s = preds['dlRY']
+    pred = preds[['dlRY']]
+
     test_df['dlRY'] = preds['dlRY']
-    exogForecast_temp = exogForecast.copy()
-    print(exogForecast_temp)
-    
-    exogForecast_temp['dlRY'] = preds['dlRY']
 
-    print(exogForecast_temp)
-
-    values = exogForecast_temp.to_dict('records')
-    print(values)
-
-
-    json_values = exogForecast_temp.to_json()
+    values = test_df.to_dict('records')
+    json_values = test_df.to_json()
     print(json_values)
 
-    # add merticss
-
-
-    json_compatible_item_data = jsonable_encoder(pred_s)
+    save_to_db(values)
+    file_path = test_df.to_csv('temp_file.csv')
+    send_to_evidently_service('temp_file.csv')
+    json_compatible_item_data = jsonable_encoder(pred)
 
 
    

@@ -22,9 +22,14 @@ services:
     environment:
       EVIDENTLY_SERVICE: "http://evidently_service.:8085"
       MONGODB_ADDRESS: "mongodb://mongo.:27017/"
+      AWS_ACCESS_KEY_ID: "minio"
+      AWS_SECRET_ACCESS_KEY: "minio123"
+      MLFLOW_S3_ENDPOINT_URL: "http://host.docker.internal:9000"
     volumes:
-      - ./prediction_service/app.py:/app.py
-      - ./prediction_service/.env:/.env
+      - ./prediction_service/:/app
+      # - ./prediction_service/app.py:/app.py
+      # - ./prediction_service/.env:/.env
+      
     ports:
       - "8086:8086"
     networks:
@@ -84,15 +89,19 @@ services:
     networks:
       - cbn_mlops_backend
       - cbn_mlops_frontend
-#  streamlit:
-#    build:
-#      context: ../streamlit
-#      dockerfile: Dockerfile
-#    depends_on:
-#      - prediction_service
-#    ports:
-#      - "8501:8501"
-#    networks:
-#      - front-tier
-#      - back-tier
+  
+  streamlit:
+   build:
+     context: streamlit
+     dockerfile: Dockerfile
+   container_name: streamlit-app
+   volumes:
+      - ./streamlit/:/app
+   depends_on:
+     - prediction_service
+   ports:
+     - "8501:8501"
+   networks:
+     - cbn_mlops_backend
+     - cbn_mlops_frontend
 

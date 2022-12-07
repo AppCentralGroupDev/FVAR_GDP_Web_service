@@ -2,9 +2,9 @@ datasets:
   gdp:
     column_mapping:
       numerical_features:
-        - 'COP50'
-        - 'GXP1'
-        - 'MPMIS1'
+        - 'COP'
+        - 'GXP'
+        - 'MPMIS'
     data_format:
       header: true
       separator: ','
