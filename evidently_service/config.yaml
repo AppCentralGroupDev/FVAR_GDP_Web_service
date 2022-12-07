@@ -13,8 +13,8 @@ datasets:
     reference_file: ./datasets/data.csv
 service:
   calculation_period_sec: 2
-  min_reference_size: 30
+  min_reference_size: 50
   moving_reference: false
   datasets_path: datasets
   use_reference: true
-  window_size: 1
+  window_size: 5

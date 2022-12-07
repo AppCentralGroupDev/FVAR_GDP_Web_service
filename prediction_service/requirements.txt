@@ -13,6 +13,7 @@ numpy
 python-dotenv
 boto3
 FastAPI
+openpyxl
 boto3==1.17.54
 fastapi==0.85.0
 fastapi-mlflow==0.2.0

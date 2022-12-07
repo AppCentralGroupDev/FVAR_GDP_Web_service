@@ -1,0 +1,8 @@
+altair
+pandas
+streamlit
+mlflow
+boto3
+openpyxl
+numpy
+requests

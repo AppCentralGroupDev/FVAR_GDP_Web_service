@@ -84,15 +84,18 @@ services:
     networks:
       - cbn_mlops_backend
       - cbn_mlops_frontend
-#  streamlit:
-#    build:
-#      context: ../streamlit
-#      dockerfile: Dockerfile
-#    depends_on:
-#      - prediction_service
-#    ports:
-#      - "8501:8501"
-#    networks:
-#      - front-tier
-#      - back-tier
+  streamlit:
+     build:
+       context: streamlit
+       dockerfile: Dockerfile
+     container_name: streamlit-app
+     volumes:
+        - ./streamlit/:/app
+     depends_on:
+       - prediction_service
+     ports:
+       - "8501:8501"
+     networks:
+       - cbn_mlops_backend
+       - cbn_mlops_frontend
 
