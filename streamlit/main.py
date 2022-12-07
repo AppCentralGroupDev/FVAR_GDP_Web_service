@@ -33,7 +33,7 @@ os.environ["MLFLOW_S3_ENDPOINT_URL"] = f"http://host.docker.internal:9000"
 
 
 base_url = 'http://host.docker.internal:8086/'
-run_id = '24fb317b6ed24d689bbf27ff54488466'
+run_id = os.getenv("run_ID", "")
 remote_server_uri = "http://mlflow_server:5000"
 
 headers = {
