@@ -26,8 +26,9 @@ services:
       modelName: ${modelName}
       modelVersion: ${modelVersion}
     volumes:
-      - ./prediction_service/app.py:/app.py
-      - ./prediction_service/.env:/.env
+      # - ./prediction_service/app.py:/app.py
+      # - ./prediction_service/.env:/.env
+      - ./prediction_service:/app
     ports:
       - "8086:8086"
     networks:
