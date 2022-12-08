@@ -92,6 +92,8 @@ services:
        context: streamlit
        dockerfile: Dockerfile
      container_name: streamlit-app
+     environment:
+      run_ID: ${run_ID}
      volumes:
         - ./streamlit/:/app
      depends_on:
