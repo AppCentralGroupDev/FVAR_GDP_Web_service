@@ -65,9 +65,9 @@ remote_server_uri = "http://mlflow_server:5000"# set to your server URI
 
 mlflow.set_tracking_uri(remote_server_uri)
 # model_name = "cbnGDP"
-model_version = 1
-run_ID = '24fb317b6ed24d689bbf27ff54488466'
-model_name = "newGDPmodel"
+model_version = os.getenv("modelVersion", "")
+run_ID = os.getenv("run_ID", "")
+model_name = os.getenv("modelName", "")
 
 
 model = mlflow.statsmodels.load_model(model_uri=f"models:/{model_name}/{model_version}")

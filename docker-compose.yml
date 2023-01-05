@@ -22,9 +22,13 @@ services:
     environment:
       EVIDENTLY_SERVICE: "http://evidently_service.:8085"
       MONGODB_ADDRESS: "mongodb://mongo.:27017/"
+      run_ID: ${run_ID}
+      modelName: ${modelName}
+      modelVersion: ${modelVersion}
     volumes:
-      - ./prediction_service/app.py:/app.py
-      - ./prediction_service/.env:/.env
+      # - ./prediction_service/app.py:/app.py
+      # - ./prediction_service/.env:/.env
+      - ./prediction_service:/app
     ports:
       - "8086:8086"
     networks:
@@ -89,6 +93,8 @@ services:
        context: streamlit
        dockerfile: Dockerfile
      container_name: streamlit-app
+     environment:
+      run_ID: ${run_ID}
      volumes:
         - ./streamlit/:/app
      depends_on:
