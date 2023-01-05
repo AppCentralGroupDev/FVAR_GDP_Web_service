@@ -27,12 +27,12 @@ TypeOfInputs = st.sidebar.selectbox("How Would You like to Distribute the Input"
 
 os.environ["AWS_ACCESS_KEY_ID"] = "minio"	
 os.environ["AWS_SECRET_ACCESS_KEY"] = "minio123"	
-os.environ["MLFLOW_S3_ENDPOINT_URL"] = f"http://host.docker.internal:9000"
+#os.environ["MLFLOW_S3_ENDPOINT_URL"] = f"http://host.docker.internal:9000"
 
 
 
 
-base_url = 'http://host.docker.internal:8086/'
+base_url = 'http://fvar_gdp_web_service-prediction_service-1:8086/'
 run_id = os.getenv("run_ID", "")
 remote_server_uri = "http://mlflow_server:5000"
 

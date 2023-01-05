@@ -13,9 +13,10 @@ networks:
 
 services:
   prediction_service:
-    build:
-      context: prediction_service
-      dockerfile: Dockerfile
+    image : fvar_gdp_web_service_prediction_service
+    #build:
+     # context: prediction_service
+      #dockerfile: Dockerfile
     depends_on:
       - evidently_service
       - mongo
@@ -25,18 +26,21 @@ services:
       run_ID: ${run_ID}
       modelName: ${modelName}
       modelVersion: ${modelVersion}
+      MLFLOW_S3_ENDPOINT_URL: ${MLFLOW_S3_ENDPOINT_URL}
     volumes:
-      - ./prediction_service/app.py:/app.py
-      - ./prediction_service/.env:/.env
+      - ./prediction_service:/app
+      #- ./prediction_service/app.py:/app.py
+      #- ./prediction_service/.env:/.env
     ports:
       - "8086:8086"
     networks:
       - cbn_mlops_backend
       - cbn_mlops_frontend
   evidently_service:
-    build:
-      context: evidently_service
-      dockerfile: Dockerfile
+    image: fvar_gdp_web_service_evidently_service
+    #build:
+     # context: evidently_service
+      #dockerfile: Dockerfile
     depends_on:
       - grafana
     volumes:
@@ -88,10 +92,14 @@ services:
       - cbn_mlops_backend
       - cbn_mlops_frontend
   streamlit:
-     build:
-       context: streamlit
-       dockerfile: Dockerfile
+     image: fvar_gdp_web_service_streamlit
+     #build:
+     #  context: streamlit
+     #  dockerfile: Dockerfile
      container_name: streamlit-app
+     environment:
+       run_ID: ${run_ID}
+       MLFLOW_S3_ENDPOINT_URL: ${MLFLOW_S3_ENDPOINT_URL}
      volumes:
         - ./streamlit/:/app
      depends_on:

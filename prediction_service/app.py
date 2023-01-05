@@ -40,6 +40,8 @@ db = mongo_client.get_database("prediction_service")
 collection = db.get_collection("data")
 
 
+
+
 def save_to_db(record):
     rec = record.copy()
     collection.insert_many(rec)
@@ -56,7 +58,7 @@ def send_to_evidently_service(record):
 
 os.environ["AWS_ACCESS_KEY_ID"] = "minio"
 os.environ["AWS_SECRET_ACCESS_KEY"] = "minio123"
-os.environ["MLFLOW_S3_ENDPOINT_URL"] = f"http://host.docker.internal:9000"
+#os.environ["MLFLOW_S3_ENDPOINT_URL"] = f"http://host.docker.internal:9000"
 
 
 
@@ -67,8 +69,11 @@ mlflow.set_tracking_uri(remote_server_uri)
 # model_name = "cbnGDP"
 model_version = os.getenv("modelVersion", "")
 run_ID = os.getenv("run_ID", "")
-model_name = os.getenv("rmodelName", "")
+model_name = os.getenv("modelName", "")
 
+print(model_version)
+print(model_name)
+print('******************')
 
 model = mlflow.statsmodels.load_model(model_uri=f"models:/{model_name}/{model_version}")
 endog = pd.read_csv("endog.csv")
