@@ -6,7 +6,7 @@ This repo contains all web services that monitor and server the GDP prediction m
 These include 
 - Streamlit application 
 - Prediction Service
-- Monitoring Service
+- Monitoring Services
 
 
 ## Installation 
